@@ -9,7 +9,7 @@ public class Day5 {
     public static final String INPUTS = "C:/Users/JochamJulian/IdeaProjects/AdventOfCode2022/Inputs/";
 
     public static void main(String[] args) throws IOException {
-        List<String> lines = Files.readAllLines(Path.of(INPUTS + "day3.txt"));
+        List<String> lines = Files.readAllLines(Path.of(INPUTS + "day5.txt"));
 
         List<Spot> listOfSpots = new ArrayList<>();
 

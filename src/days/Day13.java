@@ -21,8 +21,9 @@ public class Day13 {
             String lineTwo = lines.get(i++);
 
             int sum1 = (i / 3) + 1;
-            List<Object> listOne = listifyString(lineOne);
-            List<Object> listTwo = listifyString(lineTwo);
+
+            List<Object> listOne = parseInput(lineOne);
+            List<Object> listTwo = parseInput(lineTwo);
 
             if (linesAreInRightOrder(listOne, listTwo) < 0) {
                 System.out.println(sum1);
@@ -87,113 +88,33 @@ public class Day13 {
 
     }
 
-    public static List<Object> listifyString(String line) {
+    public static List<Object> parseInput(String line) {
 
         List<Object> list = new ArrayList<>();
-        String substring = line.substring(1, line.lastIndexOf("]"));
-
-
-        if (substring.isEmpty()) {
-            return list;
-        }
-        if (substring.contains(",")) {
-
-            List<Object> strings = splitWithDepth(substring);
-
-            list.addAll(strings);
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i) instanceof String)
-                    if (!isNumeric((String) list.get(i))) {
-
-                        list.set(i, listifyString((String) list.get(i)));
-
-                    }
-            }
-        }
-        if (isNumeric(substring)) {
-            list.add(substring);
-            return list;
-        }
-        if (listContainsOnlyNumbers(list)) {
-            return list;
-        }
-        if (substring.matches("^[\\[0-9\\]]+$")) {
-
-            list.add(listifyString(substring));
-        }
-
+        parseInput(1, line, list);
         return list;
     }
 
-    public static boolean stringOnlyContainsSpecialCharacters(String string) {
-
-        for (int i = 0; i < string.length(); i++) {
-            if (Character.isDigit(string.charAt(i))) {
-                return false;
+    public static int parseInput(int index, String line, List<Object> list) {
+        for (int i = index; i < line.length(); i++) {
+            if (line.charAt(i) == ',') {
+                continue;
+            } else if (line.charAt(i) == '[') {
+                List<Object> newList = new ArrayList<>();
+                i = parseInput(i + 1, line, newList);
+                list.add(newList);
+            } else if (line.charAt(i) == ']') {
+                return i;
+            } else if (Character.isDigit(line.charAt(i))) {
+                int currentNumber = 0;
+                do {
+                    currentNumber = (currentNumber * 10) + Character.getNumericValue(line.charAt(i));
+                }
+                while (Character.isDigit(line.charAt(++i)));
+                i--;
+                list.add(String.valueOf(currentNumber));
             }
         }
-        return true;
-
+        return line.length();
     }
-
-    public static List<Object> splitWithDepth(String string) {
-
-        List<Object> objects = new ArrayList<>();
-        int currentDepth = 0;
-        int startOfString = 0;
-        for (int i = 0; i < string.length(); i++) {
-
-            if (string.charAt(i) == '[') {
-                currentDepth++;
-            }
-            if (string.charAt(i) == ']') {
-                currentDepth--;
-            }
-            if (string.charAt(i) == ',' && currentDepth == 0) {
-
-                objects.add(string.substring(startOfString, i));
-                startOfString = i + 1;
-
-            }
-            if (i == string.length() - 1) {
-                objects.add(string.substring(startOfString));
-            }
-
-        }
-        return objects;
-
-    }
-
-    public static boolean listContainsOnlyNumbers(List<Object> objects) {
-
-        if (objects.isEmpty()) {
-            return false;
-        }
-
-        for (Object o : objects) {
-
-            if (o instanceof List<?>) {
-                return listContainsOnlyNumbers((List<Object>) o);
-            }
-            if (!isNumeric((String) o)) {
-                return false;
-            }
-
-        }
-        return true;
-
-    }
-
-    public static boolean isNumeric(String strNum) {
-        if (strNum == null) {
-            return false;
-        }
-        try {
-            int i = Integer.parseInt(strNum);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
-    }
-
 }

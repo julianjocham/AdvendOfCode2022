@@ -20,11 +20,13 @@ public class Day13 {
             String lineOne = lines.get(i++);
             String lineTwo = lines.get(i++);
 
+            int sum1 = (i / 3) + 1;
             List<Object> listOne = listifyString(lineOne);
             List<Object> listTwo = listifyString(lineTwo);
 
             if (linesAreInRightOrder(listOne, listTwo) < 0) {
-                sum += (i / 3) + 1;
+                System.out.println(sum1);
+                sum += sum1;
             }
 
         }
@@ -35,49 +37,60 @@ public class Day13 {
 
     public static int linesAreInRightOrder(List<Object> listOne, List<Object> listTwo) {
 
-        for (int i = 0; i < Math.min(listOne.size(), listTwo.size()); i++) {
+        for (int i = 0; i < listOne.size(); i++) {
+
+            if (i >= listTwo.size()) {
+                return 1;
+            }
 
             Object one = listOne.get(i);
             Object two = listTwo.get(i);
 
             if (one instanceof String && two instanceof String) {
 
-                if (Integer.parseInt((String) one) < Integer.parseInt((String) two)) {
-                    return -1;
+                int i1 = Integer.compare(Integer.parseInt((String) one), Integer.parseInt((String) two));
+                if (i1 != 0) {
+                    return i1;
                 }
-                if (Integer.parseInt((String) one) > Integer.parseInt((String) two)) {
-                    return 1;
-                }
-            }
-            if (one instanceof List<?> && two instanceof List<?>) {
+
+            } else if (one instanceof List<?> && two instanceof List<?>) {
 
                 int i1 = linesAreInRightOrder((List<Object>) one, (List<Object>) two);
                 if (i1 != 0) {
                     return i1;
                 }
-            }
-            if (one instanceof String && two instanceof List<?>) {
+
+            } else if (one instanceof String && two instanceof List<?>) {
                 List<Object> newList = new ArrayList<>();
                 newList.add(one);
 
-                return linesAreInRightOrder(newList, (List<Object>) two);
-            }
-            if (one instanceof List<?> && two instanceof String) {
+                int i1 = linesAreInRightOrder(newList, (List<Object>) two);
+                if (i1 != 0) {
+                    return i1;
+                }
+            } else if (one instanceof List<?> && two instanceof String) {
                 List<Object> newList = new ArrayList<>();
                 newList.add(two);
 
-                return linesAreInRightOrder((List<Object>) one, newList);
+                int i1 = linesAreInRightOrder((List<Object>) one, newList);
+                if (i1 != 0) {
+                    return i1;
+                }
             }
 
         }
-        return Integer.compare(listOne.size(), listTwo.size());
+        if (listOne.size() < listTwo.size()) {
+            return -1;
+        }
+        return 0;
+
 
     }
 
     public static List<Object> listifyString(String line) {
 
         List<Object> list = new ArrayList<>();
-        String substring = line.substring(line.indexOf("[") + 1, line.lastIndexOf("]"));
+        String substring = line.substring(1, line.lastIndexOf("]"));
 
 
         if (substring.isEmpty()) {
@@ -104,11 +117,23 @@ public class Day13 {
         if (listContainsOnlyNumbers(list)) {
             return list;
         }
-        if (substring.contains("[")) {
+        if (substring.matches("^[\\[0-9\\]]+$")) {
+
             list.add(listifyString(substring));
         }
 
         return list;
+    }
+
+    public static boolean stringOnlyContainsSpecialCharacters(String string) {
+
+        for (int i = 0; i < string.length(); i++) {
+            if (Character.isDigit(string.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+
     }
 
     public static List<Object> splitWithDepth(String string) {
